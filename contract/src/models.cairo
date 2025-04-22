@@ -1,38 +1,26 @@
-use starknet::{ContractAddress};
-
-#[derive(Copy, Drop, Serde, Debug, Introspect)]
-pub enum PlayerType {
+#[derive(Copy, Drop, Serde, Debug, Introspect, PartialEq)]
+pub enum Player {
     #[default]
+    None,
     X,
     O,
 }
 
 #[derive(Copy, Drop, Serde, Debug, Introspect)]
 #[dojo::model]
-pub struct Player {
+pub struct Cell {
     #[key]
-    player_id: ContractAddress,
-    player_type: PlayerType,
+    pub position: (u8, u8),
+    pub player: Player,
 }
 
 #[derive(Drop, Serde, Debug, Introspect)]
 #[dojo::model]
 pub struct GameState {
     #[key]
-    game_id: u32,
-    board: Array<Array<PlayerType>>,
-    players: Array<Player>,
-    player_turn: PlayerType,
-    has_empty_cell: bool,
-    has_x_won: bool,
-    has_o_won: bool,
-}
-
-#[derive(Copy, Drop, Serde, Debug)]
-#[dojo::model]
-pub struct Position {
-    #[key]
-    player: ContractAddress,
-    x: u16,
-    y: u16,
+    pub game_id: u8,
+    pub is_active: bool,
+    pub player_turn: Player,
+    pub has_x_won: bool,
+    pub has_o_won: bool,
 }
