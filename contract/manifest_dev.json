@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x4101e72a6af89a270b08aef1c6b5dc52d951f996d08fdfb45846f276ca9a4b4",
-      "class_hash": "0x34334960498fd6420ba661d3775e8a7b8ad93a4a99736075a6b5adb1e71371a",
+      "address": "0x57c8db1b9c724d5fafb8683c691a810cf616baaf34d58e1a6e1c4e2777a414",
+      "class_hash": "0x490f1f6990696e8e5d6b84b9b68835b51ed34045d56e2473c7f37494709ef56",
       "abi": [
         {
           "type": "impl",
@@ -1372,22 +1372,18 @@
         },
         {
           "type": "enum",
-          "name": "dojo_starter::models::Direction",
+          "name": "dojo_starter::models::Player",
           "variants": [
             {
-              "name": "Left",
+              "name": "None",
               "type": "()"
             },
             {
-              "name": "Right",
+              "name": "X",
               "type": "()"
             },
             {
-              "name": "Up",
-              "type": "()"
-            },
-            {
-              "name": "Down",
+              "name": "O",
               "type": "()"
             }
           ]
@@ -1398,18 +1394,26 @@
           "items": [
             {
               "type": "function",
-              "name": "spawn",
+              "name": "initialize",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
             },
             {
               "type": "function",
-              "name": "move",
+              "name": "play",
               "inputs": [
                 {
-                  "name": "direction",
-                  "type": "dojo_starter::models::Direction"
+                  "name": "player",
+                  "type": "dojo_starter::models::Player"
+                },
+                {
+                  "name": "x",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "y",
+                  "type": "core::integer::u8"
                 }
               ],
               "outputs": [],
@@ -1536,8 +1540,8 @@
       "tag": "dojo_starter-actions",
       "selector": "0x7a1c71029f2d0b38e3ac89b09931d08b6e48417e079c289ff19a8698d0cba33",
       "systems": [
-        "spawn",
-        "move",
+        "initialize",
+        "play",
         "upgrade"
       ]
     }
@@ -1546,29 +1550,29 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x6df6b08f853630d7d004d4bdcab97500d00e8e9379a3f470020a308e10b316d",
-      "tag": "dojo_starter-DirectionsAvailable",
-      "selector": "0x77844f1facb51e60e546a9832d56c6bd04fa23be4fd5b57290caae5e9a3c1e4"
+      "class_hash": "0xfd16e9650dfe9e57090771c8f87e9cc7e107b85e9b7d9f0b05e870ba0c7309",
+      "tag": "dojo_starter-Cell",
+      "selector": "0x6ac42f434e992299d0e07457d8eef52da413f92167d16d9a6252daaffdfbe4"
     },
     {
       "members": [],
-      "class_hash": "0x38e2e6d26249edf90f8e7c7ca709e72e73940c5ff28de462201b439a0b9bc91",
-      "tag": "dojo_starter-Moves",
-      "selector": "0x2a29373f1af8348bd366a990eb3a342ef2cbe5e85160539eaca3441a673f468"
-    },
-    {
-      "members": [],
-      "class_hash": "0x7e6d3bbf826b47545bfb43c297de529172d642297b7c2bb7ebb98c9020b2ed4",
-      "tag": "dojo_starter-Position",
-      "selector": "0x2ac8b4c190f7031b9fc44312e6b047a1dce0b3f2957c33a935ca7846a46dd5b"
+      "class_hash": "0x69b8497e152a1d21072439ec2576c9e43a6f9e7b2cba724025e4296694361b8",
+      "tag": "dojo_starter-GameState",
+      "selector": "0x1523540555f6d4c8cc861f3fbef752e2b90216e6ec060f49a13abc2dcbcc360"
     }
   ],
   "events": [
     {
       "members": [],
-      "class_hash": "0x5ec05d4e9462a0b2bd6f915e82d873d4e51497699b1a1c19b1a967d2edb608",
-      "tag": "dojo_starter-Moved",
-      "selector": "0x504403e5c02b6442527721fc464d9ea5fc8f1ee600ab5ccd5c0845d36fd45f1"
+      "class_hash": "0x2fdeb933e36a4d41569a9ecbac1897a7aaf57146b19f22451c9f9a1519ab881",
+      "tag": "dojo_starter-GameWon",
+      "selector": "0x79931e77e1790776955876833eff99a38f8e3b11afd8db84d986f7a65fb11e9"
+    },
+    {
+      "members": [],
+      "class_hash": "0x28441bd04a9e8da96d35f63abad28356924c65f9e4eaef84932a81a5ef62137",
+      "tag": "dojo_starter-Played",
+      "selector": "0x19ee80e418aaf94b0ca27197cd08e397f380c6ccc72b03a1d2252f0c798a4b8"
     }
   ],
   "external_contracts": []

@@ -3,7 +3,6 @@ use dojo_starter::models::{ Player };
 #[starknet::interface]
 pub trait IActions<T> {
     fn initialize(ref self: T);
-    // fn join_game(ref self: T, player: Player);
     fn play(ref self: T, player: Player, x:u8, y:u8);
 }
 
@@ -52,19 +51,6 @@ pub mod actions {
             );
         }
 
-        // fn join_game(ref self: ContractState, player: Player) {
-        //     let mut world = self.world(@"dojo_starter");
-        //     let caller  = get_caller_address();
-
-        //     // If player 1 is zero address, assign the caller as player 1
-        //     if (caller.is_zero()) {
-
-        //     }
-        //     // Else, if player 2 is zero address, assign the caller as player 2
-
-        //     // Else, Return with error
-
-        // }
         fn play(ref self: ContractState, player: Player, x:u8, y:u8) {
             let mut world = self.world(@"dojo_starter");
             let mut cell: Cell = world.read_model((x, y));
