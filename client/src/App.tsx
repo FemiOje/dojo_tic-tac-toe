@@ -1,18 +1,13 @@
 import { KeysClause, ToriiQueryBuilder } from "@dojoengine/sdk";
 
 import { ModelsMapping } from "./typescript/models.gen.ts";
-import { useSystemCalls } from "./useSystemCalls.ts";
 import { useAccount } from "@starknet-react/core";
 import { WalletAccount } from "./wallet-account.tsx";
 import { HistoricalEvents } from "./historical-events.tsx";
-import {
-    useDojoSDK,
-    useEntityId,
-    useEntityQuery,
-    useModel,
-} from "@dojoengine/sdk/react";
+import { useEntityQuery } from "@dojoengine/sdk/react";
 import { addAddressPadding, CairoCustomEnum } from "starknet";
 import { Events } from "./events.tsx";
+import { Board } from "./board.tsx";
 
 /**
  * Main application component that provides game functionality and UI.
@@ -21,20 +16,14 @@ import { Events } from "./events.tsx";
  * @param props.sdk - The Dojo SDK instance configured with the game schema
  */
 function App() {
-    const { useDojoStore, client } = useDojoSDK();
     const { account } = useAccount();
-    const entities = useDojoStore((state) => state.entities);
-
-    const { spawn } = useSystemCalls();
-
-    const entityId = useEntityId(account?.address ?? "0");
 
     useEntityQuery(
         new ToriiQueryBuilder()
             .withClause(
-                // Querying Moves and Position models that has at least [account.address] as key
+                // Querying Player, Cell and GameState models that has at least [account.address] as key
                 KeysClause(
-                    [ModelsMapping.Moves, ModelsMapping.Position],
+                    [ModelsMapping.Player, ModelsMapping.Cell, ModelsMapping.GameState],
                     [
                         account?.address
                             ? addAddressPadding(account.address)
@@ -46,15 +35,13 @@ function App() {
             .includeHashedKeys()
     );
 
-    const moves = useModel(entityId as string, ModelsMapping.Moves);
-    const position = useModel(entityId as string, ModelsMapping.Position);
-
     return (
         <div className="bg-black min-h-screen w-full p-4 sm:p-8">
             <div className="max-w-7xl mx-auto">
                 <WalletAccount />
+                <Board />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                     <div className="bg-gray-700 p-4 rounded-lg shadow-inner">
                         <div className="grid grid-cols-3 gap-2 w-full h-48">
                             <div className="col-start-2">
@@ -80,9 +67,9 @@ function App() {
                                     : ""}
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
-                    <div className="bg-gray-700 p-4 rounded-lg shadow-inner">
+                    {/* <div className="bg-gray-700 p-4 rounded-lg shadow-inner">
                         <div className="grid grid-cols-3 gap-2 w-full h-48">
                             {[
                                 {
@@ -128,10 +115,10 @@ function App() {
                                 </button>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
-                <div className="mt-8 overflow-x-auto">
+                {/* <div className="mt-8 overflow-x-auto">
                     <table className="w-full border-collapse border border-gray-700">
                         <thead>
                             <tr className="bg-gray-800 text-white">
@@ -206,13 +193,13 @@ function App() {
                             )}
                         </tbody>
                     </table>
-                </div>
+                </div> */}
 
                 <Events />
                 {/* // Here sdk is passed as props but this can be done via contexts */}
                 <HistoricalEvents />
             </div>
-        </div>
+        // </div>
     );
 }
 

@@ -39,11 +39,12 @@ pub mod actions {
                 }
             };
 
-            // Player X turn
+            // Default state of the game
             world.write_model(
                 @GameState { 
                     game_id: 1,
                     is_active: true,
+                    // Player X turn
                     player_turn: Player::X,
                     has_x_won: false,
                     has_o_won: false

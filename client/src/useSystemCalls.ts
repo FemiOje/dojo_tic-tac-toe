@@ -29,7 +29,7 @@ export const useSystemCalls = () => {
      * @returns {Promise<void>}
      * @throws {Error} If the spawn action fails
      */
-    const spawn = async () => {
+    const initialize = async () => {
         // Generate a unique entity ID
         const entityId = generateEntityId();
 
@@ -71,6 +71,6 @@ export const useSystemCalls = () => {
     };
 
     return {
-        spawn,
+        initialize,
     };
 };

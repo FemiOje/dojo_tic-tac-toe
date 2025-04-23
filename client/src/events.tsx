@@ -18,7 +18,7 @@ export function Events() {
             )
             .includeHashedKeys()
     );
-    const moved = useModel(entityId, ModelsMapping.Moved);
+    const played = useModel(entityId, ModelsMapping.Played);
     if (!account) {
         return (
             <div className="mt-6">
@@ -29,7 +29,8 @@ export function Events() {
     return (
         <div className="mt-6">
             <h2 className="text-white">
-                Player Last Movement : {moved && moved.direction}{" "}
+                Last Player to play : {played && played.player}{" "}
+                Last Player's position : {played && played.cell.position}{" "}
             </h2>
 
             {/* {events.map((e: ParsedEntity<SchemaType>, key) => {
