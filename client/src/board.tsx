@@ -18,11 +18,27 @@ export function Board() {
     const [selectedPlayer, setSelectedPlayer] = useState<'X' | 'O' | null>(null);
     const [gameWon, setGameWon] = useState<{player: string, lastCell: {position: [number, number]}} | null>(null);
 
-    // Get game state and cells from contract
-    const gameId = useEntityId(1);
-    const gameState = useModel(gameId as string, ModelsMapping.GameState);
+    // Fetch cell models for each position
+    const cell00Id = useEntityId(0,0);
+    const cell00 = useModel(cell00Id as string, ModelsMapping.Cell);
+    const cell01Id = useEntityId(0,1);
+    const cell01 = useModel(cell01Id as string, ModelsMapping.Cell);
+    const cell02Id = useEntityId(0,2);
+    const cell02 = useModel(cell02Id as string, ModelsMapping.Cell);
+    const cell10Id = useEntityId(1,0);
+    const cell10 = useModel(cell10Id as string, ModelsMapping.Cell);
+    const cell11Id = useEntityId(1,1);
+    const cell11 = useModel(cell11Id as string, ModelsMapping.Cell);
+    const cell12Id = useEntityId(1,2);
+    const cell12 = useModel(cell12Id as string, ModelsMapping.Cell);
+    const cell20Id = useEntityId(2,0);
+    const cell20 = useModel(cell20Id as string, ModelsMapping.Cell);
+    const cell21Id = useEntityId(2,1);
+    const cell21 = useModel(cell21Id as string, ModelsMapping.Cell);
+    const cell22Id = useEntityId(2,2);
+    const cell22 = useModel(cell22Id as string, ModelsMapping.Cell);
 
-    // Query for all cells
+    // Query for all cells (if needed for subscriptions)
     useEntityQuery(
         new ToriiQueryBuilder()
             .withClause(
@@ -47,43 +63,45 @@ export function Board() {
             )
             .includeHashedKeys()
     );
-
-    // Get game won event
+        
+    // Get game state and cells from contract
+    const gameId = useEntityId(1);
     const gameWonEvent = useModel(gameId as string, ModelsMapping.GameWon);
-
-    // Initialize game on component mount
-    useEffect(() => {
-        const initializeGame = async () => {
-            if (account) {
-                try {
-                    console.log("Initializing game...");
-                    await client.actions.initialize();
-                    console.log("Game initialized successfully");
-                    
-                    // Wait a bit for the state to update
-                    setTimeout(() => {
-                        if (gameState) {
-                            console.log("Game state after initialization:", gameState);
-                        } else {
-                            console.error("Game state not available after initialization");
-                        }
-                    }, 1000);
-                } catch (error) {
-                    console.error("Error initializing game:", error);
-                }
+    const gameState = useModel(gameId as string, ModelsMapping.GameState);
+    
+    const initializeGame = async () => {
+        if (account) {
+            try {
+                console.log("Initializing game...");
+                await client.actions.initialize(account!);
+                console.log("Game initialized successfully");
+                setBoard([
+                    ['', '', ''],
+                    ['', '', ''],
+                    ['', '', '']
+                ]);
+                setSelectedPlayer(null);
+                setGameWon(null);
+                
+                setTimeout(() => {
+                    if (gameState) {
+                        console.log("Game state after initialization:", gameState);
+                    }
+                }, 1000);
+            } catch (error) {
+                console.error("Error initializing game:", error);
             }
-        };
+        }
+    };
+
+    useEffect(() => {
         initializeGame();
     }, [account, client]);
 
-    // Update board when game state changes
     useEffect(() => {
         if (gameState) {
-            console.log("Game state updated:", gameState);
-            // Update current player based on contract state
             setCurrentPlayer(gameState.player_turn === 'X' ? 'X' : 'O');
             
-            // Update game won state
             if (gameState.has_x_won || gameState.has_o_won) {
                 setGameWon({
                     player: gameState.has_x_won ? 'X' : 'O',
@@ -95,7 +113,6 @@ export function Board() {
         }
     }, [gameState]);
 
-    // Update board when game won event is received
     useEffect(() => {
         if (gameWonEvent) {
             setGameWon({
@@ -105,46 +122,57 @@ export function Board() {
         }
     }, [gameWonEvent]);
 
-    // Update board cells
-    useEffect(() => {
-        const updateBoard = async () => {
-            if (!gameState) return;
+// Update board when cell models change
+useEffect(() => {
+    const parsePlayer = (playerEnum: CairoCustomEnum | undefined): string => {
+        if (!playerEnum) return '';
+        const variant = playerEnum.variant;
+        return variant.Success === 'X' ? 'X' : variant.Success === 'O' ? 'O' : '';
+    };
 
-            const newBoard = [...board];
-            // Query all cells and update the board
-            for (let x = 0; x < 3; x++) {
-                for (let y = 0; y < 3; y++) {
-                    const cellId = useEntityId(`${x},${y}`);
-                    const cell = useModel(cellId as string, ModelsMapping.Cell);
-                    if (cell) {
-                        newBoard[x][y] = cell.player === 'X' ? 'X' : cell.player === 'O' ? 'O' : '';
-                    }
-                }
-            }
-            setBoard(newBoard);
-        };
-
-        updateBoard();
-    }, [gameState]);
+    const newBoard = [
+        [parsePlayer(cell00?.player), parsePlayer(cell01?.player), parsePlayer(cell02?.player)],
+        [parsePlayer(cell10?.player), parsePlayer(cell11?.player), parsePlayer(cell12?.player)],
+        [parsePlayer(cell20?.player), parsePlayer(cell21?.player), parsePlayer(cell22?.player)]
+    ];
+    
+    setBoard(newBoard);
+}, [cell00, cell01, cell02, cell10, cell11, cell12, cell20, cell21, cell22]);
 
     const handleCellClick = async (row: number, col: number) => {
         if (!account || board[row][col] !== '' || !selectedPlayer || gameWon) return;
         
+        // Optimistic UI update
+        const newBoard = [...board];
+        newBoard[row][col] = selectedPlayer;
+        setBoard(newBoard);
+
         try {
             await client.actions.play(
-                account,
+                account!,
                 new CairoCustomEnum({ [selectedPlayer]: "()" }),
                 row,
                 col
             );
         } catch (error) {
             console.error('Error making move:', error);
+            // TODO: Handle error state in UI
+            // Rollback UI if transaction fails
+            const rollbackBoard = [...board];
+            rollbackBoard[row][col] = '';
+            setBoard(rollbackBoard);
         }
     };
 
     const handleRestart = async () => {
         if (account) {
-            await client.actions.initialize();
+            await client.actions.initialize(account);
+            // Force clear the board immediately
+            setBoard([
+                ['', '', ''],
+                ['', '', ''],
+                ['', '', '']
+            ]);
             setSelectedPlayer(null);
             setGameWon(null);
         }
